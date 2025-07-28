@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Birthday Game</title>
+  <style>
+    /* Pixelated Retro + CRT + Pixel Tile BG */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; background:#000 url('pixel_tile.png') repeat; overflow:hidden; font-family:'Press Start 2P',monospace; color:#0f0; image-rendering:pixelated; }
+    /* CRT Overlay */
+    body::after { content:''; position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; background:radial-gradient(circle at center,transparent 50%,rgba(0,255,0,0.1)100%); mix-blend-mode:overlay; }
+    /* VHS RGB Shift */
+    @keyframes rgbShift { 0%{filter:drop-shadow(2px 0 red) drop-shadow(-2px 0 cyan);}50%{filter:none;}100%{filter:drop-shadow(-2px 0 red) drop-shadow(2px 0 cyan);} }
+    /* Scanlines */
+    @keyframes scan {0%{background-position-y:0;}100%{background-position-y:4px;}}
+    /* Screens */
+    .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;border:6px solid #0f0;padding:10px;}
+    .scanline{background:linear-gradient(rgba(0,255,0,0.05)50%,transparent50%)repeat;background-size:100% 4px;animation:scan 0.5s linear infinite,rgbShift 2s infinite;}
+    /* Loading */
+    #loading{display:flex;flex-direction:column;align-items:center;justify-content:center;}
+    #loading .bar{width:240px;height:8px;border:3px solid #0f0;margin-top:16px;position:relative;}
+    #loading .bar div{background:#0f0;height:100%;width:0;animation:load 2s linear forwards;}
+    @keyframes load{to{width:100%;}}
+    /* Title */
+    #title h1{font-size:5rem;margin-bottom:20px;animation:blink 1s steps(2) infinite;}
+    #title p{font-size:2rem;}
+    #title .cursor{display:inline-block;animation:blink 1s steps(2) infinite;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+    /* Game */
+    #game{justify-content:flex-start;padding-top:15vh;}
+    /* Cake */
+    #cake-container{position:relative;width:700px;height:350px;}
+    #cake-base{position:absolute;bottom:0;width:100%;height:250px;background:#0f0;}
+    /* Cream layer */
+    #cream{position:absolute;bottom:230px;width:100%;height:30px;background:#090;}
+    #cake{position:absolute;bottom:260px;left:50%;transform:translateX(-50%);display:flex;gap:12px;}
+    .candle{width:16px;height:60px;background:#0f0;cursor:pointer;position:relative;}
+    .candle::after{content:'';position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:10px;height:22px;background:#ff0;}
+    .candle.extinguished::after{background:transparent;}
+    /* Smoke */
+    .smoke{position:absolute;width:18px;height:18px;background:#0f0;opacity:0.6;border-radius:50%;animation:smoke-rise 1s ease-out forwards;}
+    @keyframes smoke-rise{to{transform:translateY(-100px) scale(2);opacity:0;}}
+    #counter{margin-top:20px;font-size:1.2rem;}
+    /* Celebrate */
+    #celebrate h1{font-size:5rem;margin-bottom:20px;animation:blink 1s steps(2) infinite;}
+    #celebrate p{font-size:2rem;margin-top:20px;}
+    #celebrate .gif{width:200px;image-rendering:pixelated;margin-bottom:20px;}
+    .star{font-size:6rem;color:#0f0;opacity:0.8;animation:star-flicker 1s infinite alternate;}
+    @keyframes star-flicker{from{text-shadow:0 0 4px #0f0,0 0 8px #0f0;}to{text-shadow:0 0 2px #ff0,0 0 6px #ff0;}}
+    .btn{margin-top:24px;padding:8px 16px;font-family:monospace;background:#0f0;color:#000;border:2px solid #0f0;cursor:pointer;font-size:1rem;}
+  </style>
+</head>
+<body>
+  <div id="loading" class="screen scanline">
+    <div class="glitch">NOW LOADING...</div>
+    <div class="bar"><div></div></div>
+  </div>
+  <div id="title" class="screen scanline">
+    <h1 class="glitch">★ HAPPY BIRTHDAY ★</h1>
+    <p class="glitch">PRESS START <span class="cursor">█</span></p>
+  </div>
+  <div id="game" class="screen scanline">
+    <div id="cake-container">
+      <div id="cake-base"></div>
+      <div id="cream"></div>
+      <div id="cake"></div>
+    </div>
+    <p class="scanline">ロウソクを吹き消せ！</p>
+    <p id="counter">残り: 21 本</p>
+  </div>
+  <div id="celebrate" class="screen scanline">
+    <img src="https://furiirakun.com/wp/wp-content/uploads/2021/05/131.gif" class="gif" alt="celebration">
+    <h1 class="glitch">HAPPY BIRTHDAY!!</h1>
+    <p>🎉 お誕生日おめでとう！ 🎉</p>
+    <div class="star" style="position:absolute;top:20%;left:20%;">☆</div>
+    <div class="star" style="position:absolute;top:20%;right:20%;">☆</div>
+    <div class="star" style="position:absolute;bottom:20%;left:30%;">☆</div>
+    <div class="star" style="position:absolute;bottom:25%;right:30%;">☆</div>
+    <button id="toTitleFromCelebrate" class="btn">タイトルに戻る</button>
+  </div>
+  <!-- Audio & Scripts -->
+  <audio id="title-bgm" src="カラフルボックス.mp3" loop preload="auto"></audio>
+  <audio id="game-bgm" src="game_music.mp3" loop preload="auto"></audio>
+  <audio id="celebrate-bgm" src="Sparkling Loop.mp3" loop preload="auto"></audio>
+  <audio id="blow-sound" src="CHIPTUNE発射.mp3" preload="auto"></audio>
+  <audio id="start-button-sound" src="ゲームのボタン音.mp3" preload="auto"></audio>
+  <audio id="return-button-sound" src="ゲームのボタン音.mp3" preload="auto"></audio>
+  <script>
+    const screens={loading:document.getElementById('loading'),title:document.getElementById('title'),game:document.getElementById('game'),celebrate:document.getElementById('celebrate')};
+    const cake=document.getElementById('cake'),counter=document.getElementById('counter');let remaining=21;
+    const titleBGM=document.getElementById('title-bgm'),gameBGM=document.getElementById('game-bgm'),celebrateBGM=document.getElementById('celebrate-bgm');
+    const blowSound=document.getElementById('blow-sound'),startBtnSound=document.getElementById('start-button-sound'),returnBtnSound=document.getElementById('return-button-sound');
+    function stopAllBGM(){[titleBGM,gameBGM,celebrateBGM].forEach(b=>{b.pause();b.currentTime=0;});}
+    function showScreen(name){Object.values(screens).forEach(s=>s.style.display='none');screens[name].style.display='flex';stopAllBGM();if(name==='title')titleBGM.play();if(name==='game')gameBGM.play();if(name==='celebrate')celebrateBGM.play();}
+    function initCandles(){cake.innerHTML='';remaining=21;counter.textContent=`残り: ${remaining} 本`;for(let i=0;i<21;i++){const c=document.createElement('div');c.classList.add('candle');cake.appendChild(c);} }
+    initCandles();setTimeout(()=>showScreen('title'),2500);
+    screens.title.addEventListener('click',()=>{startBtnSound.play();initCandles();showScreen('game');});
+    cake.addEventListener('click',e=>{if(e.target.classList.contains('candle')&&remaining>0){e.target.classList.add('extinguished');blowSound.play();const puff=document.createElement('div');puff.classList.add('smoke');puff.style.left=e.target.offsetLeft+'px';puff.style.top=(e.target.offsetTop-22)+'px';cake.appendChild(puff);setTimeout(()=>puff.remove(),1000);remaining--;counter.textContent=`残り: ${remaining} 本`;if(remaining===0)showScreen('celebrate');}});
+    screens.celebrate.querySelector('#toTitleFromCelebrate').addEventListener('click',()=>{returnBtnSound.play();showScreen('title');});
+  </script>
+</body>
+</html>
