@@ -30,7 +30,7 @@
     /* Game */
     #game{justify-content:flex-start;padding-top:15vh;}
     /* Cake */
-    #cake-container{position:relative;width:700px;height:350px;}
+    #cake-container{position:relative;width:90vw;max-width:700px;height:auto;aspect-ratio:700/350;}
     #cake-base{position:absolute;bottom:0;width:100%;height:250px;background:#0f0;}
     /* Cream layer */
     #cream{position:absolute;bottom:230px;width:100%;height:30px;background:#090;}
@@ -45,10 +45,16 @@
     /* Celebrate */
     #celebrate h1{font-size:5rem;margin-bottom:20px;animation:blink 1s steps(2) infinite;}
     #celebrate p{font-size:2rem;margin-top:20px;}
-    #celebrate .gif{width:200px;image-rendering:pixelated;margin-bottom:20px;}
+    #celebrate .gif{width:60vw;max-width:200px;image-rendering:pixelated;margin-bottom:20px;}
     .star{font-size:6rem;color:#0f0;opacity:0.8;animation:star-flicker 1s infinite alternate;}
     @keyframes star-flicker{from{text-shadow:0 0 4px #0f0,0 0 8px #0f0;}to{text-shadow:0 0 2px #ff0,0 0 6px #ff0;}}
     .btn{margin-top:24px;padding:8px 16px;font-family:monospace;background:#0f0;color:#000;border:2px solid #0f0;cursor:pointer;font-size:1rem;}
+    /* Responsive text */
+    @media(max-width: 600px) {
+      #title h1, #celebrate h1 { font-size:3rem; }
+      #title p, #celebrate p { font-size:1rem; }
+      #counter { font-size:1rem; }
+    }
   </style>
 </head>
 <body>
@@ -72,7 +78,7 @@
   <div id="celebrate" class="screen scanline">
     <img src="https://furiirakun.com/wp/wp-content/uploads/2021/05/131.gif" class="gif" alt="celebration">
     <h1 class="glitch">HAPPY BIRTHDAY!!</h1>
-    <p>🎉 お誕生日おめでとう！ 🎉</p>
+    <p>🎉 7/30 お誕生日おめでとう！ 🎉</p>
     <div class="star" style="position:absolute;top:20%;left:20%;">☆</div>
     <div class="star" style="position:absolute;top:20%;right:20%;">☆</div>
     <div class="star" style="position:absolute;bottom:20%;left:30%;">☆</div>
@@ -82,7 +88,7 @@
   <!-- Audio & Scripts -->
   <audio id="title-bgm" src="カラフルボックス.mp3" loop preload="auto"></audio>
   <audio id="game-bgm" src="game_music.mp3" loop preload="auto"></audio>
-  <audio id="celebrate-bgm" src="Sparkling Loop.mp3" loop preload="auto"></audio>
+  <audio id="celebrate-bgm" src="Sparkling Loop.mps" loop preload="auto"></audio>
   <audio id="blow-sound" src="CHIPTUNE発射.mp3" preload="auto"></audio>
   <audio id="start-button-sound" src="ゲームのボタン音.mp3" preload="auto"></audio>
   <audio id="return-button-sound" src="ゲームのボタン音.mp3" preload="auto"></audio>
